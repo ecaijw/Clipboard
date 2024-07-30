@@ -14,6 +14,7 @@
 		A3206F242C58724A0001E35E /* ClipboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3206F232C58724A0001E35E /* ClipboardTests.swift */; };
 		A3206F2E2C58724A0001E35E /* ClipboardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3206F2D2C58724A0001E35E /* ClipboardUITests.swift */; };
 		A3206F302C58724A0001E35E /* ClipboardUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3206F2F2C58724A0001E35E /* ClipboardUITestsLaunchTests.swift */; };
+		A3206F3D2C58A7680001E35E /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3206F3C2C58A7680001E35E /* ClipboardManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +46,7 @@
 		A3206F292C58724A0001E35E /* ClipboardUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClipboardUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3206F2D2C58724A0001E35E /* ClipboardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardUITests.swift; sourceTree = "<group>"; };
 		A3206F2F2C58724A0001E35E /* ClipboardUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		A3206F3C2C58A7680001E35E /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 			children = (
 				A3206F112C5872480001E35E /* ClipboardApp.swift */,
 				A3206F132C5872480001E35E /* ContentView.swift */,
+				A3206F3C2C58A7680001E35E /* ClipboardManager.swift */,
 				A3206F152C5872490001E35E /* Assets.xcassets */,
 				A3206F1A2C5872490001E35E /* Clipboard.entitlements */,
 				A3206F172C5872490001E35E /* Preview Content */,
@@ -260,6 +263,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3206F142C5872480001E35E /* ContentView.swift in Sources */,
+				A3206F3D2C58A7680001E35E /* ClipboardManager.swift in Sources */,
 				A3206F122C5872480001E35E /* ClipboardApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
