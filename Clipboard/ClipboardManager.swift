@@ -46,19 +46,31 @@ class ClipboardManager: ObservableObject {
 
     private func addClipboardContent(_ content: String) {
         if !history.contains(content) {
-            history.append(content)
+            history.insert(content, at: 0) // Add to the head of the history
             saveHistory()
         }
     }
 
     private func saveHistory() {
-        let historyString = history.joined(separator: "\n")
-        try? historyString.write(to: historyFileURL, atomically: true, encoding: .utf8)
+        do {
+            var historyToSave = history
+            if historyToSave.count > 100 {
+                historyToSave = Array(historyToSave.prefix(100)) // Keep only the latest 100 entries
+            }
+            let jsonData = try JSONEncoder().encode(historyToSave)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                try jsonString.write(to: historyFileURL, atomically: true, encoding: .utf8)
+            }
+        } catch {
+            print("Error saving history: \(error)")
+        }
     }
-
     private func loadHistory() {
-        if let historyString = try? String(contentsOf: historyFileURL, encoding: .utf8) {
-            self.history = historyString.components(separatedBy: "\n").filter { !$0.isEmpty }
+        do {
+            let data = try Data(contentsOf: historyFileURL)
+            history = try JSONDecoder().decode([String].self, from: data)
+        } catch {
+            print("Error loading history: \(error)")
         }
     }
 

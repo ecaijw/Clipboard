@@ -10,23 +10,36 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var clipboardManager = ClipboardManager()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-            List(clipboardManager.history, id: \.self) { item in
-                Text(item)
-                    .onTapGesture {
-                        clipboardManager.pasteToClipboard(content: item)
+        ScrollViewReader { scrollViewProxy in
+            VStack {
+                Image(systemName: "globe")
+                    .imageScale(.large)
+                    .foregroundStyle(.tint)
+                Text("Hello, world!")
+                List {
+                    ForEach(clipboardManager.history, id: \.self) { item in
+                        Text(item)
+                            .id(item) // Ensure each item has a unique ID
+                            .onTapGesture {
+                                clipboardManager.pasteToClipboard(content: item)
+                            }
                     }
+                }
+                .frame(minWidth: 300, minHeight: 400)
+                .onChange(of: clipboardManager.history) { _ in
+                    // Scroll to the top when history changes
+                    if let firstItem = clipboardManager.history.first {
+                        withAnimation {
+                            scrollViewProxy.scrollTo(firstItem, anchor: .top)
+                        }
+                    }
+                }
             }
-            .frame(minWidth: 300, minHeight: 400)
-        }
-        .padding()
-        .onAppear {
-            clipboardManager.startMonitoring()
+            .onAppear {
+                clipboardManager.startMonitoring()
+            }
         }
     }
 }
