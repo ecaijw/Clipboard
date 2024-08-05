@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct ContentView: View {
-    @StateObject private var clipboardManager = ClipboardManager()
+    @ObservedObject var clipboardManager: ClipboardManager
 
     var body: some View {
         ScrollViewReader { scrollViewProxy in
@@ -19,9 +19,10 @@ struct ContentView: View {
                     .foregroundStyle(.tint)
                 Text("Hello, world!")
                 List {
-                    ForEach(clipboardManager.history, id: \.self) { item in
+                    ForEach(clipboardManager.history.indices, id: \.self) { index in
+                        let item = clipboardManager.history[index]
                         Text(item)
-                            .id(item) // Ensure each item has a unique ID
+                            .id(index) // Use the index as a unique ID
                             .onTapGesture {
                                 clipboardManager.pasteToClipboard(content: item)
                             }
@@ -45,6 +46,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(clipboardManager: ClipboardManager())
 }
-

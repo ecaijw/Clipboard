@@ -13,27 +13,27 @@ class ClipboardManager: ObservableObject {
     private var lastChangeCount: Int = 0
     private var previousFocusedApp: NSRunningApplication?
     private let historyFileURL: URL
-
+    
     init() {
         let fileManager = FileManager.default
         let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let appDirectory = appSupportURL.appendingPathComponent("ClipboardApp")
-
+        
         if !fileManager.fileExists(atPath: appDirectory.path) {
             try? fileManager.createDirectory(at: appDirectory, withIntermediateDirectories: true, attributes: nil)
         }
-
+        
         self.historyFileURL = appDirectory.appendingPathComponent("clipboard_history.txt")
-
+        
         loadHistory()
         startMonitoring()
     }
-
+    
     func startMonitoring() {
         timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(checkClipboard), userInfo: nil, repeats: true)
         previousFocusedApp = NSWorkspace.shared.frontmostApplication
     }
-
+    
     @objc private func checkClipboard() {
         previousFocusedApp = NSWorkspace.shared.frontmostApplication
         if let clipboardContent = NSPasteboard.general.string(forType: .string) {
@@ -43,14 +43,14 @@ class ClipboardManager: ObservableObject {
             }
         }
     }
-
+    
     private func addClipboardContent(_ content: String) {
         if !history.contains(content) {
             history.insert(content, at: 0) // Add to the head of the history
             saveHistory()
         }
     }
-
+    
     private func saveHistory() {
         do {
             var historyToSave = history
@@ -73,32 +73,40 @@ class ClipboardManager: ObservableObject {
             print("Error loading history: \(error)")
         }
     }
-
+    
     func pasteToClipboard(content: String) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(content, forType: .string)
         pasteToPreviousApp()
     }
-
+    
     private func pasteToPreviousApp() {
         // TODO
         return
         guard let app = previousFocusedApp else { return }
-
+        
         let source = """
         tell application "\(app.bundleIdentifier!)"
             activate
             tell application "System Events" to keystroke "v" using command down
         end tell
         """
-
+        
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: source) {
             scriptObject.executeAndReturnError(&error)
         }
-
+        
         if let error = error {
             print("Error: \(error)")
         }
+    }
+
+    func pasteLastMinusOne() {
+        guard history.count > 1 else { return }
+        let lastMinusOne = history[1]
+        history.insert(lastMinusOne, at: 0)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(lastMinusOne, forType: .string)
     }
 }
