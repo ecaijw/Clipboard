@@ -29,15 +29,14 @@ struct ContentView: View {
                     }
                 }
                 .frame(minWidth: 300, minHeight: 400)
-                .onChange(of: clipboardManager.history) { _ in
+                .onChange(of: clipboardManager.history) { oldValue, newValue in
                     // Scroll to the top when history changes
-                    if let firstItem = clipboardManager.history.first {
+                    if let firstItem = newValue.first, oldValue != newValue {
                         withAnimation {
-                            scrollViewProxy.scrollTo(firstItem, anchor: .top)
+                            scrollViewProxy.scrollTo(clipboardManager.history.firstIndex(of: firstItem), anchor: .top)
                         }
                     }
-                }
-            }
+                }            }
             .onAppear {
                 clipboardManager.startMonitoring()
             }

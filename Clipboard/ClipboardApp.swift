@@ -137,7 +137,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func showAbout() {
         let alert = NSAlert()
         alert.messageText = "About"
-        alert.informativeText = "Clipboard Assistant V1.0 \n\nManager your clipboard history.\nClick a history item to copy it."
+        alert.informativeText = "Clipboard Assistant V1.0 \n\nManage your clipboard history.\nClick a history item to copy it."
         alert.runModal()
     }
 
@@ -147,7 +147,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         var popoverFrame = popoverWindow.frame
-        popoverFrame.origin.y -= 100  // Move the popover down by 150 pixels
+        popoverFrame.origin.y -= 110  // Move the popover down by 150 pixels
         popoverWindow.setFrame(popoverFrame, display: true, animate: true)
     }
 }

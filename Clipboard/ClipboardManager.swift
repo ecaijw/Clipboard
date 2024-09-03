@@ -27,15 +27,29 @@ class ClipboardManager: ObservableObject {
         
         loadHistory()
         startMonitoring()
+
+        // Observe when the app becomes active
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(appDidBecomeActive),
+            name: NSWorkspace.didActivateApplicationNotification,
+            object: nil
+        )
+
+        // Observe when the app becomes inactive
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(appDidResignActive),
+            name: NSWorkspace.didDeactivateApplicationNotification,
+            object: nil
+        )
     }
     
     func startMonitoring() {
         timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(checkClipboard), userInfo: nil, repeats: true)
-        previousFocusedApp = NSWorkspace.shared.frontmostApplication
     }
     
     @objc private func checkClipboard() {
-        previousFocusedApp = NSWorkspace.shared.frontmostApplication
         if let clipboardContent = NSPasteboard.general.string(forType: .string) {
             if NSPasteboard.general.changeCount != lastChangeCount {
                 lastChangeCount = NSPasteboard.general.changeCount
@@ -80,25 +94,102 @@ class ClipboardManager: ObservableObject {
         pasteToPreviousApp()
     }
     
+    @objc func appDidBecomeActive(notification: Notification) {
+        // Save the previously focused application
+        if let app = NSWorkspace.shared.frontmostApplication {
+            print("The value of previousFocusedApp is: \(app)")
+
+            let ignoredApps = ["luke.Clipboard"]
+            if let bundleIdentifier = app.bundleIdentifier, ignoredApps.contains(bundleIdentifier) {
+                print("Ignoring application: \(bundleIdentifier)")
+                return
+            }
+            previousFocusedApp = app
+        } else {
+            print("The value of previousFocusedApp is: null")
+        }
+    }
+
+    @objc func appDidResignActive(notification: Notification) {
+        // Do nothing for now
+    }
+
     private func pasteToPreviousApp() {
-        // TODO
-        return
         guard let app = previousFocusedApp else { return }
-        
-        let source = """
-        tell application "\(app.bundleIdentifier!)"
-            activate
-            tell application "System Events" to keystroke "v" using command down
-        end tell
+        let scriptSource = """
+            delay 5
+
+            tell app "System Events"
+                repeat 10 times
+                    keystroke "#"
+                end repeat
+            end tell
         """
         
         var error: NSDictionary?
-        if let scriptObject = NSAppleScript(source: source) {
+        if let scriptObject = NSAppleScript(source: scriptSource) {
             scriptObject.executeAndReturnError(&error)
         }
         
         if let error = error {
             print("Error: \(error)")
+        } else {
+            print("success")
+        }
+    }
+    
+    
+    private func pasteToPreviousApp1() {
+        // TODO
+//        return
+        guard let app = previousFocusedApp else { return }
+        
+        // Ensure the application is running
+        guard app.isTerminated == false else {
+            print("The previous focused application is not running.")
+            return
+        }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            print("pasteToPreviousApp: \(app)")
+            
+            // Retry mechanism
+            let maxRetries = 5
+            var currentRetry = 0
+            var success = false
+            
+            while currentRetry < maxRetries && !success {
+                // Activate the application using NSRunningApplication
+                DispatchQueue.main.async {
+                    app.activate(options: [.activateAllWindows])
+                }
+                
+                // Delay to ensure the app is activated
+                usleep(500000) // 0.5 seconds delay
+
+                let scriptSource = """
+                tell application "System Events" to keystroke "v" using {command down}
+                """
+                
+                var error: NSDictionary?
+                if let scriptObject = NSAppleScript(source: scriptSource) {
+                    scriptObject.executeAndReturnError(&error)
+                }
+                
+                if let error = error {
+                    print("Error: \(error)")
+                    currentRetry += 1
+                    usleep(500000) // sleep for 0.5 seconds before retrying
+                } else {
+                    success = true
+                }
+            }
+            
+            if !success {
+                DispatchQueue.main.async {
+                    print("Failed to activate application and paste after \(maxRetries) attempts")
+                }
+            }
         }
     }
 
